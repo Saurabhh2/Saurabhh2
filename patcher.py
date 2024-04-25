@@ -1,3 +1,4 @@
+
 # Script for patching file webui.py for Fooocus
 # Author: AlekPet & Shahmatist/RMDA
 
