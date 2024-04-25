@@ -1,0 +1,128 @@
+# Install modules for downloading our SDXL models
+import requests
+from tqdm.notebook import tqdm
+import os
+
+def mount_gdrive():
+    try:
+        from google.colab import drive
+        print("Mounting Google Drive...")
+        drive.mount('/content/drive', force_remount=True)
+        print("Google Drive successfully mounted.")
+    except Exception as e:
+        print(f"An error occurred while mounting Google Drive: {e}")
+
+def download_file_from_url(url, folder_path, user_filename):
+    try:
+        # Full path to save the file
+        save_path = os.path.join(folder_path, user_filename)
+
+        # Send a GET request to the URL
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Raise an HTTPError if the HTTP request returned an unsuccessful status code
+
+        # Get the total file size
+        file_size = int(response.headers.get('content-length', 0))
+
+        # Create a progress bar
+        progress_bar = tqdm(total=file_size, unit='iB', unit_scale=True)
+
+        # Open the file to write the content
+        with open(save_path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=1024):
+                progress_bar.update(len(chunk))
+                file.write(chunk)
+
+        progress_bar.close()
+
+        # Check if the file size is correct
+        if file_size != 0 and file_size != progress_bar.n:
+            print("ERROR: Something went wrong with the download. Please try again.")
+        else:
+            print(f"File downloaded successfully to {save_path}")
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred while downloading the file: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+def collect_download_info():
+    model_download_info = []
+    lora_download_info = []
+
+    while True:
+        add_model = input("Do you want to add an SDXL Checkpoint? (yes/no): ")
+        if add_model.lower() == 'yes':
+            url = input("Paste SDXL Checkpoint URL Here: ")
+            user_filename = input("Enter the filename for Checkpoint (including .ckpt or .safetensors extension): ")
+            model_download_info.append((url, user_filename))
+        elif add_model.lower() == 'no':
+            break
+
+    while True:
+        add_lora = input("Do you want to add a Lora File? (yes/no): ")
+        if add_lora.lower() == 'yes':
+            lora_url = input("Paste Lora File URL Here: ")
+            lora_name = input("Enter the filename for Lora File (including .safetensors extension): ")
+            lora_download_info.append((lora_url, lora_name))
+        elif add_lora.lower() == 'no':
+            break
+
+    return model_download_info, lora_download_info
+
+# Mount GDrive
+mount_gdrive()
+
+# Use pip to install pygit
+!pip install pygit2==1.12.2
+
+# Make the Github directory
+!mkdir /content/drive/MyDrive/Github
+
+# Change Directory
+%cd /content/drive/MyDrive/Github
+
+# Clone the Fooocus repo
+!git clone https://github.com/lllyasviel/Fooocus.git
+
+# Change Directory
+%cd /content/drive/MyDrive/Github/Fooocus
+
+# Make sure we are running latest version if already installed
+!git pull
+
+# Collect download information for SDXL models and Lora files
+model_download_info, lora_download_info = collect_download_info()
+
+# Specify the folder path where you want to save the checkpoint files
+checkpoint_folder_path = "/content/drive/MyDrive/Github/Fooocus/models/checkpoints"
+
+# Download all requested SDXL checkpoint files
+for url, user_filename in model_download_info:
+    download_file_from_url(url, checkpoint_folder_path, user_filename)
+
+# Specify the folder path where you want to save the Lora files
+lora_folder_path = "/content/drive/MyDrive/Github/Fooocus/models/loras"
+
+# Download all requested Lora files
+for lora_url, lora_name in lora_download_info:
+    download_file_from_url(lora_url, lora_folder_path, lora_name)
+
+# Define the new output folder path
+new_output_folder = '/content/drive/MyDrive/Images/Fooocus'
+
+# Check if the new output folder exists, and create it if it doesn't
+if not os.path.exists(new_output_folder):
+    os.makedirs(new_output_folder)
+    print(f"Created the new output folder: {new_output_folder}")
+
+# Define the symbolic link path
+symbolic_link_path = '/content/drive/MyDrive/Github/Fooocus/output'
+
+# Check if the symbolic link exists, and create it if it doesn't
+if not os.path.exists(symbolic_link_path):
+    os.symlink(new_output_folder, symbolic_link_path)
+    print(f"Created the symbolic link to the new output folder.")
+
+# Start Fooocus and check for updates
+%cd /content/drive/MyDrive/Github/Fooocus/
+!python entry_with_update.py --share --always-high-vram
