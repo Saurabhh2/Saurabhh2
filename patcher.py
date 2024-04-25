@@ -158,17 +158,6 @@ def search_and_path():
 
 
 def start_path():
-    print("""=== Script for patching file webui.py for Fooocus ===
-> Extension: 'Extention Panel'
-> Author: Shahmatist/RMDA
-=== ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ===""")
-
-    isOk = search_and_path()
-    if isOk == "Ok":
-        print("\nPatched successfully!")
-
-    elif isOk == "Already":
-        print("\nPath already appied!")
 
     else:
         print("\nError path data incorrect!")
