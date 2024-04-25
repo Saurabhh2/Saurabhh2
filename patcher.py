@@ -14,26 +14,6 @@ PATH_OBJ_DATA_PATCHER = [
 import urllib.request\n"""],
 
 
-    ["from modules.auth import auth_enabled, check_auth\n","""from modules.module_translate import translate, GoogleTranslator
-from urllib.parse import urlparse, parse_qs, unquote
-from modules.model_loader import load_file_from_url
-from rembg import remove
-from PIL import Image\n"""],
-    ["def get_task(*args):\n", """    # Prompt translate AlekPet
-    argsList = list(args)
-    toT = argsList.pop() 
-    srT = argsList.pop() 
-    trans_automate = argsList.pop() 
-    trans_enable = argsList.pop() 
-
-    if trans_enable:      
-        if trans_automate:
-            positive, negative = translate(argsList[2], argsList[3], srT, toT)            
-            argsList[2] = positive
-            argsList[3] = negative
-            
-    args = tuple(argsList)
-    # end -Prompt translate AlekPet\n"""],
     [
         "            desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)\n",
         """            def downloader(civitai_api_key,downloader_checkpoint,downloader_loras,downloader_embd):
@@ -100,97 +80,7 @@ from PIL import Image\n"""],
                         with gr.Row():
                             download_start = gr.Button(value='Start Download')
                         download_start.click(downloader, inputs=[civitai_api_key,downloader_checkpoint,downloader_loras,downloader_embd],outputs=civitai_api_key)
-                        gr.HTML('For apply emmbeding, in the prompt field use a record like (embedding:file_name:1.1)')
-                        gr.HTML('* \"Model Downloader\" is powered by Shahmatist^RMDA')
-                  with gr.TabItem(label='Prompt Translate') as promp_tr_tab:       
-                    langs_sup = GoogleTranslator().get_supported_languages(as_dict=True)
-                    langs_sup = list(langs_sup.values())
-
-                    def change_lang(src, dest):
-                            if src != 'auto' and src != dest:
-                                return [src, dest]
-                            return ['en','auto']
                         
-                    def show_viewtrans(checkbox):
-                        return {viewstrans: gr.update(visible=checkbox)} 
-                    
-                    
-                    with gr.Row():
-                            translate_enabled = gr.Checkbox(label='Enable translate', value=False, elem_id='translate_enabled_el')
-                            translate_automate = gr.Checkbox(label='Auto translate "Prompt and Negative prompt" before Generate', value=True, interactive=True, elem_id='translate_enabled_el')
-                            
-                    with gr.Row():
-                            gtrans = gr.Button(value="Translate")        
-
-                            srcTrans = gr.Dropdown(['auto']+langs_sup, value='auto', label='From', interactive=True)
-                            toTrans = gr.Dropdown(langs_sup, value='en', label='To', interactive=True)
-                            change_src_to = gr.Button(value="🔃")
-                            
-                    with gr.Row():
-                            adv_trans = gr.Checkbox(label='See translated prompts after click Generate', value=False)          
-                            
-                    with gr.Box(visible=False) as viewstrans:
-                            gr.Markdown('Tranlsated prompt & negative prompt')
-                            with gr.Row():
-                                p_tr = gr.Textbox(label='Prompt translate', show_label=False, value='', lines=2, placeholder='Translated text prompt')
-
-                            with gr.Row():            
-                                p_n_tr = gr.Textbox(label='Negative Translate', show_label=False, value='', lines=2, placeholder='Translated negative text prompt')             
-                    gr.HTML('* \"Prompt Translate\" is powered by AlekPet. <a href="https://github.com/AlekPet/Fooocus_Extensions_AlekPet" target="_blank">\U0001F4D4 Document</a>')
-
-                  with gr.TabItem(label='Photopea') as photopea_tab:
-                    PHOTOPEA_MAIN_URL = 'https://www.photopea.com/'
-                    PHOTOPEA_IFRAME_ID = 'webui-photopea-iframe'
-                    PHOTOPEA_IFRAME_HEIGHT = '800px'
-                    PHOTOPEA_IFRAME_WIDTH = '100%'
-                    PHOTOPEA_IFRAME_LOADED_EVENT = 'onPhotopeaLoaded'
-
-                    def get_photopea_url_params():
-                      return '#%7B%22resources%22:%5B%22data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIAAQMAAADOtka5AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRF////p8QbyAAAADZJREFUeJztwQEBAAAAgiD/r25IQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfBuCAAAB0niJ8AAAAABJRU5ErkJggg==%22%5D%7D'
-
-                    with gr.Row():
-                          photopea = gr.HTML(
-                            f'''
-                            <iframe id='{PHOTOPEA_IFRAME_ID}' 
-                            src = '{PHOTOPEA_MAIN_URL}{get_photopea_url_params()}' 
-                            width = '{PHOTOPEA_IFRAME_WIDTH}' 
-                            height = '{PHOTOPEA_IFRAME_HEIGHT}'
-                            onload = '{PHOTOPEA_IFRAME_LOADED_EVENT}(this)'>'''
-                          )
-                    with gr.Row():
-                          gr.HTML('* \"Photopea\" is powered by Photopea API. <a href="https://www.photopea.com/api" target="_blank">\U0001F4D4 Document</a>')
-
-
-                  with gr.TabItem(label='Remove Background') as rembg_tab:
-                        def rembg_run(path, progress=gr.Progress(track_tqdm=True)):
-                          input = Image.open(path)
-                          output = remove(input)
-                          return output
-                        with gr.Column(scale=1):
-                            rembg_input = grh.Image(label='Drag above image to here', source='upload', type='filepath', scale=20)
-                            rembg_button = gr.Button(value='Remove Background', interactive=True, scale=1)
-                        with gr.Column(scale=3):
-                            rembg_output = grh.Image(label='rembg Output', interactive=False, height=380)
-                        gr.Markdown('Powered by [🪄 rembg 2.0.53](https://github.com/danielgatis/rembg/releases/tag/v2.0.53)')
-                        rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress='full')
-                  gr.Markdown('* \"Extention panel\" is powered by Shahmatist^RMDA')\n"""],
-    ["            .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)\n","""
-        # [start] Prompt translate AlekPet
-        def seeTranlateAfterClick(adv_trans, prompt, negative_prompt="", srcTrans="auto", toTrans="en"):
-            if(adv_trans):
-                positive, negative = translate(prompt, negative_prompt, srcTrans, toTrans)
-                return [positive, negative]   
-            return ["", ""]
-        
-        gtrans.click(translate, inputs=[prompt, negative_prompt, srcTrans, toTrans], outputs=[prompt, negative_prompt])
-        gtrans.click(translate, inputs=[prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr])
-        
-        change_src_to.click(change_lang, inputs=[srcTrans,toTrans], outputs=[toTrans,srcTrans])
-        adv_trans.change(show_viewtrans, inputs=adv_trans, outputs=[viewstrans])
-        # [end] Prompt translate AlekPet\n"""],
-["        ctrls += ip_ctrls\n", "        ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]\n"],
-["            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \\\n","""            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \\\n"""]
-    
 ]
 
 
