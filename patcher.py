@@ -1,4 +1,3 @@
-
 # Script for patching file webui.py for Fooocus
 # Author: AlekPet & Shahmatist/RMDA
 
@@ -101,8 +100,8 @@ from PIL import Image\n"""],
                         with gr.Row():
                             download_start = gr.Button(value='Start Download')
                         download_start.click(downloader, inputs=[civitai_api_key,downloader_checkpoint,downloader_loras,downloader_embd],outputs=civitai_api_key)
-                    
-                            ]
+                        
+]
 
 
 def search_and_path():
