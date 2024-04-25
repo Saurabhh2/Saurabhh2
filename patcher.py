@@ -8,14 +8,32 @@ import shutil
 DIR_FOOOCUS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Fooocus")
 PATH_TO_WEBUI = os.path.join(DIR_FOOOCUS, "webui.py")
 
-PATH_OBJ_DATA_DOWNLOAD_MODEL = [
+PATH_OBJ_DATA_PATCHER = [
     ["import copy\n","import requests\n"],
     ["import launch\n","""import re
 import urllib.request\n"""],
 
 
-    ["from modules.auth import auth_enabled, check_auth\n","""from urllib.parse import urlparse, parse_qs, unquote
-from modules.model_loader import load_file_from_url\n"""],   
+    ["from modules.auth import auth_enabled, check_auth\n","""from modules.module_translate import translate, GoogleTranslator
+from urllib.parse import urlparse, parse_qs, unquote
+from modules.model_loader import load_file_from_url
+from rembg import remove
+from PIL import Image\n"""],
+    ["def get_task(*args):\n", """    # Prompt translate AlekPet
+    argsList = list(args)
+    toT = argsList.pop() 
+    srT = argsList.pop() 
+    trans_automate = argsList.pop() 
+    trans_enable = argsList.pop() 
+
+    if trans_enable:      
+        if trans_automate:
+            positive, negative = translate(argsList[2], argsList[3], srT, toT)            
+            argsList[2] = positive
+            argsList[3] = negative
+            
+    args = tuple(argsList)
+    # end -Prompt translate AlekPet\n"""],
     [
         "            desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)\n",
         """            def downloader(civitai_api_key,downloader_checkpoint,downloader_loras,downloader_embd):
@@ -67,8 +85,10 @@ from modules.model_loader import load_file_from_url\n"""],
                 load_file_from_url(url=url_down,model_dir=model_dir,file_name=filename)
               return
 
-            with gr.Row(elem_classes='downloader_row'):
-                 with gr.Accordion('Model Dowloader', open=False):
+
+            with gr.Row(elem_classes='extend_row'):
+               with gr.Accordion('Extention', open=False):
+                  with gr.TabItem(label='Model Dowloader') as download_tab:
                         with gr.Row():
                             civitai_api_key=downloader_checkpoint=gr.Textbox(label='Civitai API Key', show_label=True, interactive=True, value='')
                         with gr.Row():
@@ -79,7 +99,8 @@ from modules.model_loader import load_file_from_url\n"""],
                             downloader_embd=gr.Textbox(label='Embedding Link', show_label=True, interactive=True)
                         with gr.Row():
                             download_start = gr.Button(value='Start Download')
-                        download_start.click(downloader, inputs=[civitai_api_key,downloader_checkpoint,downloader_loras,downloader_embd],outputs=civitai_api_key)\n"""],
+                        download_start.click(downloader, inputs=[civitai_api_key,downloader_checkpoint,downloader_loras,downloader_embd],outputs=civitai_api_key)
+                                      
 ]
 
 
