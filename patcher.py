@@ -85,7 +85,7 @@ from modules.model_loader import load_file_from_url\n"""],
 
 def search_and_path():
     isOk = 0
-    pathesLen = len(PATH_OBJ_DATA_DOWNLOAD_MODEL)
+    pathesLen = len(PATH_OBJ_DATA_PATCHER)
     patchedFileName = os.path.join(DIR_FOOOCUS, "webui_patched.py")
 
     with open(PATH_TO_WEBUI, 'r+', encoding='utf-8') as f:
@@ -96,7 +96,7 @@ def search_and_path():
             print(f"File '{PATH_TO_WEBUI}' is empty!\n")
             return
 
-        if PATH_OBJ_DATA_DOWNLOAD_MODEL[0][1] in lines:
+        if PATH_OBJ_DATA_PATCHER[0][1] in lines:
             return "Already"
 
         pathed = 0
@@ -105,7 +105,7 @@ def search_and_path():
         patchedFile = open(patchedFileName, 'w+', encoding='utf-8')
 
         for line in lines:
-            for linepath in PATH_OBJ_DATA_DOWNLOAD_MODEL:
+            for linepath in PATH_OBJ_DATA_PATCHER:
                 if line.startswith(linepath[0]):
                     line = line + linepath[1]
                     isOk = isOk + 1
@@ -138,7 +138,7 @@ def search_and_path():
 
 def start_path():
     print("""=== Script for patching file webui.py for Fooocus ===
-> Extension: 'Download Model'
+> Extension: 'Extention Panel'
 > Author: Shahmatist/RMDA
 === ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ===""")
 
